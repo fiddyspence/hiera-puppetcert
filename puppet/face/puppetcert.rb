@@ -96,6 +96,9 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
     option "--really" do
       summary "do it even with a big file"
     end
+    option "--writefile FILE" do
+      summary "output to a file"
+    end
     when_invoked do |file,options|
 
       if File.exist?(File.join(Dir.pwd, file))
@@ -129,12 +132,22 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       output=File.open('/tmp/moo','w')
       open(real_file) do |ciphertext|
 
-        until ciphertext.eof?
-          output.write decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+        if options[:writefile]
+          outfile = File.open(options[:writefile],'w')
+
+          until ciphertext.eof?
+            outfile.write decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+          end
+        else
+          until ciphertext.eof?
+            plaintext << decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+          end
         end
-
+   
       end
-
+      return plaintext.join('') unless options[:writefile]
+      return options[:writefile] if options[:writefile]
+      
     end
   end
 end
