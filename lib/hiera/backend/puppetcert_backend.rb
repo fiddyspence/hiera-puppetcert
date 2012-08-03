@@ -71,17 +71,19 @@ class Hiera
         def decrypt(file, sslprivkey)
           
           decryptkey = OpenSSL::PKey::RSA.new File.read sslprivkey
-
+          txtdata=[]
           open(file) do |ciphertext|
             debug("loaded ciphertext: #{file}")
             begin
-            txt = decryptkey.private_decrypt ciphertext.read
+            until ciphertext.eof?
+               txtdata << decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+            end
           rescue e
             warn("Warning: General exception decrypting file #{e.message}")
           end
 
           debug("result is a #{txt.class} txt #{txt}")
-          return txt
+          return txtdata.join('')
         end
       end
     end
