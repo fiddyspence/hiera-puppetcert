@@ -4,6 +4,7 @@ class Hiera
 
         def initialize 
             require 'openssl'
+            require 'base64'
             debug ("Loaded Puppetcert_backend")
         end
 
@@ -70,17 +71,23 @@ class Hiera
   
         def decrypt(file, sslprivkey)
           
+          begin
           decryptkey = OpenSSL::PKey::RSA.new File.read sslprivkey
+          rescue ENOENT
+            raise "Couldn't find a key at #{sslprivkey}" 
+          rescue OpenSSL::PKey::RSAError
+            raise "Couldn't open private key at #{sslprivkey}" 
+          end
           txtdata=[]
           open(file) do |ciphertext|
             debug("loaded ciphertext: #{file}")
             begin
-            until ciphertext.eof?
-               txtdata << decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+              until ciphertext.eof?
+                txtdata << decryptkey.private_decrypt(Base64.decode64(ciphertext.readline))
+              end
+            rescue => e
+              warn("Warning: General exception decrypting file #{e.message}")
             end
-          rescue e
-            warn("Warning: General exception decrypting file #{e.message}")
-          end
 
           debug("result is a #{txt.class} txt #{txt}")
           return txtdata.join('')
