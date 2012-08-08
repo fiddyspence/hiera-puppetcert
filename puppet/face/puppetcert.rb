@@ -2,22 +2,16 @@ require 'puppet/indirector/face'
 require 'base64'
 
 Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
-  copyright "Puppet Labs", 2011
+  copyright "Puppet Labs", 2012
   license   "Apache 2 license; see COPYING"
-
+  author    "Chris Spence"
   summary "Encrypt and decrypt data using Puppet SSL certs"
+
   description <<-'EOT'
     This subcommand deals with encrypting data using a specified public SSL 
     key, as configured in hiera.yaml.  The data should be a file, with YAML 
     format data in it, intended to be used as a source of Hiera data.
   EOT
-  short_description <<-'EOT'
-    This subcommand deals with encrypting data using a specified public SSL 
-    key, as configured in hiera.yaml
-  EOT
-
-  get_action(:destroy).summary "Invalid for this subcommand."
-  get_action(:search).summary "Invalid for this subcommand."
 
   action(:encrypt) do
     summary "Encrypt a file"
@@ -58,10 +52,17 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       opensslpath = config[:puppetcert][:ssldir] || '/etc/puppetlabs/puppet/ssl/'
       public_keypath = File.join(opensslpath, config[:puppetcert][:pubkeys] || 'public_keys')
       private_keypath = File.join(opensslpath, config[:puppetcert][:privkeys] || 'private_keys')
-      pubkey = File.join(public_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
+      pubkey = config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem'
+
+      unless File.exists?(pubkey)
+        sslpubkey = File.join(public_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
+        raise "Could not find public key #{sslpubkey}" unless File.exists?(sslpubkey)
+      else
+        sslpubkey = pubkey
+      end
 
       begin
-        encryptkey = OpenSSL::PKey::RSA.new File.read pubkey
+        encryptkey = OpenSSL::PKey::RSA.new File.read sslpubkey
       rescue OpenSSL::PKey::RSAError
         raise "Could not load private key"
       end
@@ -123,8 +124,15 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       private_keypath = File.join(opensslpath, config[:puppetcert][:privkeys] || 'private_keys')
       privkey = File.join(private_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
 
+      unless File.exists?(privkey)
+        sslprivkey = File.join(private_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
+        raise "Could not find privlic key #{sslprivkey}" unless File.exists?(sslprivkey)
+      else
+        sslprivkey = privkey
+      end
+
       begin
-        decryptkey = OpenSSL::PKey::RSA.new File.read privkey
+        decryptkey = OpenSSL::PKey::RSA.new File.read sslprivkey
       rescue OpenSSL::PKey::RSAError
         raise "Could not load private key"
       end

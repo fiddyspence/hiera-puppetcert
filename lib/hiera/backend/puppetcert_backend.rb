@@ -28,7 +28,13 @@ class Hiera
             privkey = Config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem'
 
             ## key is the SSL private key to use to decrypt the data
-            sslprivkey = opensslpath + '/' + private_keypath + '/' + privkey
+            unless File.exists?(privkey)
+              sslprivkey = opensslpath + '/' + private_keypath + '/' + privkey
+              raise "Couldn't find the private key at #{sslprivkey}"
+            else
+              sslprivkey = privkey 
+            end
+
             debug("SSL private key file was #{sslprivkey}")
             Backend.datasources(scope, order_override) do |source|
                 puppetcertfile = Backend.datafile(:puppetcert, scope, source, "puppetcert") || next
