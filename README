@@ -17,6 +17,7 @@ Example hiera.yaml for your delight and pleasure:
    :ssldir: /etc/puppetlabs/puppet/ssl     (this is the default setting)
    :pubkeys: public_keys                   (this is the default setting)
    :privkeys: private_keys                 (this is the default setting)
-   :cert: puppet.spence.org.uk.local.pem   (defaults to ENV['HOSTNAME'].pem)
+   :pubkey: puppet.spence.org.uk.local.pem   (defaults to ENV['HOSTNAME'].pem - note, this can be the full path to a cert)
+   :privkey: puppet.spence.org.uk.local.pem   (defaults to ENV['HOSTNAME'].pem - note, this can be the full path to a cert)
    :datadir: /etc/puppetlabs/hieradata
 

@@ -52,7 +52,7 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       opensslpath = config[:puppetcert][:ssldir] || '/etc/puppetlabs/puppet/ssl/'
       public_keypath = File.join(opensslpath, config[:puppetcert][:pubkeys] || 'public_keys')
       private_keypath = File.join(opensslpath, config[:puppetcert][:privkeys] || 'private_keys')
-      pubkey = config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem'
+      pubkey = config[:puppetcert][:pubkey] || ENV['HOSTNAME']+'.pem'
 
       unless File.exists?(pubkey)
         sslpubkey = File.join(public_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
@@ -122,7 +122,7 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       opensslpath = config[:puppetcert][:ssldir] || '/etc/puppetlabs/puppet/ssl/'
       public_keypath = File.join(opensslpath, config[:puppetcert][:pubkeys] || 'public_keys')
       private_keypath = File.join(opensslpath, config[:puppetcert][:privkeys] || 'private_keys')
-      privkey = File.join(private_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
+      privkey = config[:puppetcert][:privkey] || ENV['HOSTNAME']+'.pem'
 
       unless File.exists?(privkey)
         sslprivkey = File.join(private_keypath, config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem')
@@ -137,7 +137,6 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
         raise "Could not load private key"
       end
       plaintext=[] 
-      output=File.open('/tmp/moo','w')
       open(real_file) do |ciphertext|
 
         if options[:writefile]

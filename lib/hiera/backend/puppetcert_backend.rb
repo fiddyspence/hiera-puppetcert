@@ -25,7 +25,7 @@ class Hiera
             opensslpath = Config[:puppetcert][:ssldir] || '/etc/puppetlabs/puppet/ssl/'
             public_keypath = Config[:puppetcert][:pubkeys] || 'public_keys'
             private_keypath = Config[:puppetcert][:privkeys] || 'private_keys'
-            privkey = Config[:puppetcert][:cert] || ENV['HOSTNAME']+'.pem'
+            privkey = Config[:puppetcert][:pubkey] || ENV['HOSTNAME']+'.pem'
 
             ## key is the SSL private key to use to decrypt the data
             unless File.exists?(privkey)
