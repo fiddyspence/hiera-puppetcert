@@ -1,7 +1,7 @@
-require 'puppet/indirector/face'
+require 'puppet/face'
 require 'base64'
 
-Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
+Puppet::Face.define(:puppetcert, '0.0.1') do
   copyright "Puppet Labs", 2012
   license   "Apache 2 license; see COPYING"
   author    "Chris Spence"
@@ -20,18 +20,20 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
       Openssl libraries
     EOT
     returns <<-'EOT'
-      Nothing. When used from the Ruby API, returns a
-      Puppet::Transaction::Report object.
+      The filename of the now encrypted data with a new suffix, e.g. common.yaml.puppetcert
     EOT
     examples <<-'EOT'
-      Apply the locally cached catalog:
-
       $ puppet puppetcert encrypt /tmp/common.yaml
-  
-      Creates an encrypted file /tmp/common.puppetcert
+      /tmp/common.yaml.puppetcert
 
+      Creates an encrypted file /tmp/common.yaml.puppetcert
     EOT
-
+    notes <<-'EOT'
+      The file output by the encrypt action will have the full filename and path
+      of the original file.  If you want to use this data for the puppetcert Hiera
+      backend, you may have to rename the output file in place as the backend expects
+      to find the data for the namespace you are looking up in <namespace>.puppetcert
+    EOT
     when_invoked do |file,options|
 
       if File.exist?(File.join(Dir.pwd, file))
@@ -92,7 +94,14 @@ Puppet::Indirector::Face.define(:puppetcert, '0.0.1') do
     examples <<-'EOT'
 
       $ puppet puppetcert decrypt /tmp/common.puppetcert
+      ---
+      ntpserver: ntp1.dc1.example.com
+      sysadmin: dc1noc@example.com
+      moo: different
 
+      $ puppet puppetcert decrypt /tmp/common.puppetcert --writefile /tmp/moo
+      /tmp/moo
+   
     EOT
     option "--really" do
       summary "do it even with a big file"
