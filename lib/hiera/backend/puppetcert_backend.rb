@@ -40,13 +40,12 @@ class Hiera
                 puppetcertfile = Backend.datafile(:puppetcert, scope, source, "puppetcert") || next
 
                 plain = decrypt(puppetcertfile, sslprivkey)
-                next if !plain
-                next if plain.empty?
+
+                next if !plain or plain.empty?
                 debug("SSL cert decrypt returned data")
 
                 data = YAML.load(plain)
-                next if !data
-                next if data.empty?
+                next if !data or data.empty?
                 debug ("Data contains valid YAML")
 
                 next unless data.include?(key)
