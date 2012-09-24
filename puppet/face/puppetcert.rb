@@ -1,5 +1,3 @@
-require 'puppet/face'
-require 'base64'
 
 Puppet::Face.define(:puppetcert, '0.0.1') do
   copyright "Puppet Labs", 2012
@@ -36,7 +34,7 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
       This is meant to partner with a Hiera Puppetcert back end which takes care of 
       decrypting the data that you are probably using this Puppet Face to encrypt.
 
-      Check the README for details of configuration
+      Check the README for details of configuration - note it uses settings from hiera.yaml
     EOT
     when_invoked do |file,options|
 
@@ -95,6 +93,7 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
     notes <<-'EOT'
       This is meant to partner with a Hiera Puppetcert back end which takes care of 
       decrypting the data that you are probably using this Puppet Face to encrypt.
+      Check the README for details of configuration - note it uses settings from hiera.yaml
     EOT
     examples <<-'EOT'
 
