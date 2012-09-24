@@ -33,6 +33,10 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
       of the original file.  If you want to use this data for the puppetcert Hiera
       backend, you may have to rename the output file in place as the backend expects
       to find the data for the namespace you are looking up in <namespace>.puppetcert
+      This is meant to partner with a Hiera Puppetcert back end which takes care of 
+      decrypting the data that you are probably using this Puppet Face to encrypt.
+
+      Check the README for details of configuration
     EOT
     when_invoked do |file,options|
 
@@ -89,7 +93,8 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
     EOT
     returns "Nothing."
     notes <<-'EOT'
-      Nothing to see here, move along
+      This is meant to partner with a Hiera Puppetcert back end which takes care of 
+      decrypting the data that you are probably using this Puppet Face to encrypt.
     EOT
     examples <<-'EOT'
 
@@ -104,10 +109,10 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
    
     EOT
     option "--really" do
-      summary "do it even with a big file"
+      summary "do it even with a big file greater than 64KB"
     end
     option "--writefile FILE" do
-      summary "output to a file"
+      summary "output to a file rather than stdout"
     end
     when_invoked do |file,options|
 
@@ -120,9 +125,11 @@ Puppet::Face.define(:puppetcert, '0.0.1') do
       else
         raise "could not find file"
       end
+
       if File.size(real_file) > 65536
         raise "big file - alert" unless options[:really]
       end
+
       configfile = File.join([File.dirname(Puppet.settings[:config]), "hiera.yaml"])
       raise "could not load #{configfile}" unless File.exist?(configfile)
       config = YAML.load_file(configfile)
